@@ -32,7 +32,7 @@
         </div>
       </div>
     </div>
-    <div class="ten wide column segment ui"></div>
+    <div class="ten wide column segment ui" ref="map"></div>
   </div>
 </template>
 
@@ -64,7 +64,7 @@ export default {
     },
     findCloseBuyButtonPressed() {
       console.log("burda");
-      const URL = `http://localhost:8070/nearby-search/${this.lat}/${this.lng}/${this.radius * 1000}`;
+      const URL = `https://google-map-spring-boot.herokuapp.com/nearby-search/${this.lat}/${this.lng}/${this.radius * 1000}`;
       axios.get(URL).then(response => {
         this.places = response.data.data;
         console.log("sdfds " + response.data);
@@ -74,6 +74,24 @@ export default {
       });
     },
     initMap() {
+      var map = new window.google.maps.Map(this.$refs['map'], {
+        zoom: 15,
+        center: new window.google.maps.LatLng(this.lat, this.lng),
+        mapTypeId: window.google.maps.MapTypeId.ROADMAP
+      });
+      var infowindow = new window.google.maps.InfoWindow();
+      this.places.forEach((place) => {
+        const lat = place.lat;
+        const lng = place.lng;
+        let marker = new window.google.maps.Marker({
+          position: new window.google.maps.LatLng(lat, lng),
+          map: map
+        });
+        window.google.maps.event.addListener(marker, "click", () => {
+          infowindow.setContent(`<div class="ui header">${place.name}</div><p>${place.vicinity}</p>`);
+          infowindow.open(map, marker);
+        });
+      });
     }
 
   }
